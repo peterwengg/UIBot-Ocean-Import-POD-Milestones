@@ -1,1 +1,2 @@
 # UIBot-Update-Ocean-Import-POD-Milestones
+This automation robot streamlines the process of updating milestones in the Dimerco's Value+ application. The corresponding HBL (House Bill of Lading) are located based on the provided MBL (Master Bill of Lading) and efficiently updates the release date to past the estimated time of arrival. The program also keeps track of the update status, recording it accurately within an Excel file for easy reference.
