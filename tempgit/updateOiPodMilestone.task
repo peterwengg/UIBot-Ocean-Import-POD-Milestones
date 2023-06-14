@@ -1,0 +1,133 @@
+Dim podExcelBookObj = ""
+Dim podExcelRowCnt = ""
+Dim valuePlusChromeObj = ""
+
+// Open up excel book containing POD milestone details
+podExcelBookObj = Excel.OpenExcel('''C:\Users\DIMSIN\Desktop\Peter\RPA File\OI Update POD Milestone\RPA Update OI POB Milestone.xlsx''',True,"Excel","","")
+// Open up chrome window and navigates to value plus page
+valuePlusChromeObj = WebBrowser.Create("chrome","https://dfssin.dimerco.com:8888/Default.aspx?lurl=https%3a%2f%2fdfssin.dimerco.com%3a8888%2fDefault.aspx#DFS715000089",5000,{"bContinueOnError":False,"iDelayAfter":3000,"iDelayBefore":200,"sBrowserPath":"","sStartArgs":""})
+#icon("@res:0sq5cof5-199n-bc4p-oh9v-5jt9s3os7j67.png")
+Window.Show({"wnd":[{"cls":"Chrome_WidgetWin_1","title":"DIMERCO ValuePlus System - Google Chrome","app":"chrome"}]},"max")
+
+// Determine how many row of MBL in the sheet
+podExcelRowCnt = Excel.GetRowsCount(podExcelBookObj,"ALL")
+podExcelActualRowCnt = 0
+For podExcelRowLineNo = 4 To podExcelRowCnt Step 1 
+	currPodExcelRowMbl = Excel.ReadCell(podExcelBookObj, "ALL", "B"&podExcelRowLineNo)
+	If currPodExcelRowMbl <> ""
+		podExcelActualRowCnt = podExcelActualRowCnt + 1
+	End If
+Next
+podExcelRowCnt = podExcelActualRowCnt
+
+// Navigates to search HBL
+// Clicks on eOMS
+#icon("@res:39og27ls-iqg2-1q7j-nakc-2eoap16h1aso.png")
+Mouse.Action({"wnd":[{"cls":"Chrome_WidgetWin_1","title":"*","app":"chrome"},{"cls":"Chrome_RenderWidgetHostHWND","title":"Chrome Legacy Window"}],"html":[{"tag":"A","parentid":"dVPMenu","aaname":"eOMS"}]},"left","click",5000,{"bContinueOnError":False,"iDelayAfter":300,"iDelayBefore":200,"bSetForeground":True,"sCursorPosition":"Center","iCursorOffsetX":0,"iCursorOffsetY":0,"sKeyModifiers":[],"sSimulate":"simulate","bMoveSmoothly":False})
+Delay(1000)
+// Clicks on OI
+#icon("@res:qquvhr6f-s41t-7dr0-7106-0pbh46hl7o70.png")
+Mouse.Action({"wnd":[{"cls":"Chrome_WidgetWin_1","title":"*","app":"chrome"},{"cls":"Chrome_RenderWidgetHostHWND","title":"Chrome Legacy Window"}],"html":[{"tag":"A","parentid":"dVPMenu","aaname":"OI"}]},"left","click",5000,{"bContinueOnError":False,"iDelayAfter":300,"iDelayBefore":200,"bSetForeground":True,"sCursorPosition":"Center","iCursorOffsetX":0,"iCursorOffsetY":0,"sKeyModifiers":[],"sSimulate":"simulate","bMoveSmoothly":False})
+Delay(1000)
+// Clicks on H B/L Search
+#icon("@res:lrte9rap-lsbu-ut90-bp70-2faf2sec2fm7.png")
+Mouse.Action({"wnd":[{"cls":"Chrome_WidgetWin_1","title":"*","app":"chrome"},{"cls":"Chrome_RenderWidgetHostHWND","title":"Chrome Legacy Window"}],"html":[{"tag":"A","parentid":"dVPMenu","aaname":"H B/L Search"}]},"left","click",5000,{"bContinueOnError":False,"iDelayAfter":300,"iDelayBefore":200,"bSetForeground":True,"sCursorPosition":"Center","iCursorOffsetX":0,"iCursorOffsetY":0,"sKeyModifiers":[],"sSimulate":"simulate","bMoveSmoothly":False})
+Delay(1000)
+// Minimise side bar
+#icon("@res:pe3in4qv-fr1s-aq2l-bgkg-7oit4l43hb06.png")
+Mouse.Action({"wnd":[{"cls":"Chrome_WidgetWin_1","title":"*","app":"chrome"},{"cls":"Chrome_RenderWidgetHostHWND","title":"Chrome Legacy Window"}],"html":[{"tag":"DIV","parentid":"sidebar","aaname":"收缩"}]},"left","click",5000,{"bContinueOnError":False,"iDelayAfter":300,"iDelayBefore":200,"bSetForeground":True,"sCursorPosition":"Center","iCursorOffsetX":0,"iCursorOffsetY":0,"sKeyModifiers":[],"sSimulate":"simulate","bMoveSmoothly":False})
+
+// For each MBL in excel, search the HBL associated to them and update POD "Document Release Date" for each HBL
+For podExcelRowLineNo = 4 To (podExcelRowCnt + 3) Step 1
+	// Checks if MBL entry has already been updated before, if updated, jump to next MBL entry
+	currMblEntryStatus = Excel.ReadCell(podExcelBookObj, "ALL", "D"&podExcelRowLineNo)
+	If currMblEntryStatus = "Success"
+		Continue
+	End If
+	
+	// Entry status of all HBL associated to current MBL 
+	currMblEntryStatus = "Success" 
+	
+	// Assign curr row MBL and Document pickup date to variables 
+	currPodExcelRowMbl = Excel.ReadCell(podExcelBookObj, "ALL", "B"&podExcelRowLineNo)
+	currPodExcelRowPickupDate = Excel.ReadCell(podExcelBookObj, "ALL", "C"&podExcelRowLineNo)
+	// TracePrint("Curr row MBL num: " & currPodExcelRowMbl)
+	// TracePrint("Curr row document pickup date: " & currPodExcelRowPickupDate)
+	
+	// Input MBL in MBL search field
+	Delay(2000)
+	#icon("@res:rjjo0p44-gtvh-u27o-3hoh-59l3s2c8iiar.png")
+	UiElement.SetValue({"wnd":[{"cls":"Chrome_WidgetWin_1","title":"*","app":"chrome"},{"cls":"Chrome_RenderWidgetHostHWND","title":"Chrome Legacy Window"}],"html":[{"tag":"IFRAME","src":"/V3New/OI_HBL_Search/Index?pageid=*"},{"tag":"INPUT","id":"_sfltMBLNo"}]},currPodExcelRowMbl,{"bContinueOnError":False,"iDelayAfter":300,"iDelayBefore":200})
+	// Clicks search button to locate HBL associated to current MBL
+	Delay(2000)
+	#icon("@res:n3jvo2d6-aup1-tnu3-nf0m-11tb0pndvtel.png")
+	Mouse.Action({"wnd":[{"cls":"Chrome_WidgetWin_1","title":"*","app":"chrome"},{"cls":"Chrome_RenderWidgetHostHWND","title":"Chrome Legacy Window"}],"html":[{"tag":"IFRAME","src":"/V3New/OI_HBL_Search/Index?pageid=*"},{"tag":"INPUT","id":"btnSearch"}]},"left","click",5000,{"bContinueOnError":False,"iDelayAfter":300,"iDelayBefore":200,"bSetForeground":True,"sCursorPosition":"Center","iCursorOffsetX":0,"iCursorOffsetY":0,"sKeyModifiers":[],"sSimulate":"simulate","bMoveSmoothly":False})
+	
+	// Stores list of HBL found in an array
+	foundHblNumArr = UiElement.DataScrap({"wnd":[{"cls":"Chrome_WidgetWin_1","title":"*","app":"chrome"},{"cls":"Chrome_RenderWidgetHostHWND","title":"Chrome Legacy Window"}],"html":[{"tag":"IFRAME","src":"/V3New/OI_HBL_Search/Index?pageid=page1962"},{"tag":"DIV","id":"OIHBLSearchGrid"}]},{"ExtractTable":0,"Columns":[{"selecors":[{"tag":"div","index":0,"className":"k-grid-content","value":"div.k-grid-content","prefix":""},{"tag":"table","index":0,"className":"","value":"table","prefix":">"},{"tag":"tbody","index":0,"className":"","value":"tbody","prefix":">"},{"tag":"tr","value":"tr","index":0,"prefix":">"},{"tag":"td","index":1,"className":"","value":"td:nth-child(1)","prefix":">"},{"tag":"a","index":0,"className":"","value":"a","prefix":">"}],"props":["text"]}]},{"objNextLinkElement":"","iMaxNumberOfPage":5,"iMaxNumberOfResult":-1,"iDelayBetweenMS":1000,"bContinueOnError":False})
+	// TracePrint(foundHblNumArr)
+	// Clicks on each HBL number in search H B/L
+	For Each currHblNum In foundHblNumArr
+		
+		// Clicks on current HBL number to open HBL in new tab
+		Delay(5000)
+		toClickText = currHblNum[0]
+		TracePrint("Current HBL num to click: " & toClickText)
+		#icon("@res:uj19c3jm-gtr3-qeu8-s11i-8rpj6a5qlcqk.png")
+		Mouse.Action({"wnd":[{"cls":"Chrome_WidgetWin_1","title":"*","app":"chrome"},{"cls":"Chrome_RenderWidgetHostHWND","title":"Chrome Legacy Window"}],"html":[{"tag":"IFRAME","src":"/V3New/OI_HBL_Search/Index?pageid=page1962"},{"tag":"A","parentid":"OIHBLSearchGrid","aaname":toClickText}]},"left","click",5000,{"bContinueOnError":False,"iDelayAfter":300,"iDelayBefore":200,"bSetForeground":True,"sCursorPosition":"Center","iCursorOffsetX":0,"iCursorOffsetY":0,"sKeyModifiers":[],"sSimulate":"simulate","bMoveSmoothly":False})
+		Delay(5000)
+		
+		// Clicks on "POD" button to go to POD interface
+		#icon("@res:nojeq8nr-d4j0-6jjr-3qta-ifi17cm04f6j.png")
+		Mouse.Action({"wnd":[{"cls":"Chrome_WidgetWin_1","title":"*","app":"chrome"},{"cls":"Chrome_RenderWidgetHostHWND","title":"Chrome Legacy Window"}],"html":[{"tag":"IFRAME","src":"/V3NEW/V3New/OI_HBL/Edit_LeftTab?HBLID=*&Mode=OIH"},{"tag":"A","id":"btnPOD"}]},"left","click",5000,{"bContinueOnError":False,"iDelayAfter":300,"iDelayBefore":200,"bSetForeground":True,"sCursorPosition":"Center","iCursorOffsetX":0,"iCursorOffsetY":0,"sKeyModifiers":[],"sSimulate":"simulate","bMoveSmoothly":False})
+		Delay(2000)
+		
+		// Sets document release date
+		#icon("@res:i1lgd112-26d6-u3sm-bes2-320u9b75ksp8.png")
+		UiElement.SetValue({"wnd":[{"cls":"Chrome_WidgetWin_1","title":"*","app":"chrome"},{"cls":"Chrome_RenderWidgetHostHWND","title":"Chrome Legacy Window"}],"html":[{"tag":"IFRAME","src":"/V3NEW/V3New/OI_HBL/Edit_LeftTab?HBLID=*&Mode=OIH"},{"tag":"IFRAME","src":"/V3NEW/V3New/OMS_POD/POD?SourceID=*&Mode=OIH&dt=*"},{"tag":"INPUT","id":"DocumentReleaseDT"}]},currPodExcelRowPickupDate,{"bContinueOnError":False,"iDelayAfter":300,"iDelayBefore":200})
+		Delay(1000)
+		
+		// Checks if newly entered document release date in value plus matches with excel document release date
+		// Gets document release date set in value plus
+		#icon("@res:l64e3ikj-g12f-0rus-cpon-2oikmgmitik6.png")
+		valuePlusDocReleaseDate = UiElement.GetValue({"wnd":[{"cls":"Chrome_WidgetWin_1","title":"*","app":"chrome"},{"cls":"Chrome_RenderWidgetHostHWND","title":"Chrome Legacy Window"}],"html":[{"tag":"IFRAME","src":"/V3NEW/V3New/OI_HBL/Edit_LeftTab?HBLID=*&Mode=OIH"},{"tag":"IFRAME","src":"/V3NEW/V3New/OMS_POD/POD?SourceID=*&Mode=OIH&dt=*"},{"tag":"INPUT","id":"DocumentReleaseDT"}]},{"bContinueOnError":False,"iDelayAfter":300,"iDelayBefore":200})
+		dateContainDash = ( InStr(valuePlusDocReleaseDate,"-",1,False) <> 0 )
+		If dateContainDash 
+			valuePlusDocReleaseDate = Split(valuePlusDocReleaseDate,"-")
+		Else
+			valuePlusDocReleaseDate = Split(valuePlusDocReleaseDate,"/")
+		End If
+		// TracePrint(valuePlusDocReleaseDate)
+		valuePlusDocReleaseDate = valuePlusDocReleaseDate[0] & valuePlusDocReleaseDate[1] & valuePlusDocReleaseDate[2]
+		valuePlusDocReleaseDate = SubStr(valuePlusDocReleaseDate,1,8)
+		
+		// Gets excel document release date
+		excelDocReleaseDate = Excel.ReadCell(podExcelBookObj,"ALL","C" & podExcelRowLineNo)
+		excelDocReleaseDate = Split(valuePlusDocReleaseDate,"-")
+		excelDocReleaseDate = SubStr(valuePlusDocReleaseDate,1,8)
+		// TracePrint(excelDocReleaseDate)
+		Delay(1000)
+		
+		// Only if entered date in value plus matches with excel, save and set entry status to Success. 
+		// Else dont save and set entry status to Failed
+		If valuePlusDocReleaseDate <> excelDocReleaseDate 
+			currMblEntryStatus = "Failed" & currHblNum 
+		Else
+			// Clicks on save button to save POD milestone update
+			#icon("@res:um9qj6ac-n94g-6um3-rqkp-qata5vlsrhbg.png")
+			Mouse.Action({"wnd":[{"cls":"Chrome_WidgetWin_1","title":"*","app":"chrome"},{"cls":"Chrome_RenderWidgetHostHWND","title":"Chrome Legacy Window"}],"html":[{"tag":"IFRAME","src":"/V3NEW/V3New/OI_HBL/Edit_LeftTab?HBLID=*&Mode=OIH"},{"tag":"IFRAME","src":"/V3NEW/V3New/OMS_POD/POD?SourceID=*&Mode=OIH&dt=*"},{"tag":"BUTTON"}]},"left","click",5000,{"bContinueOnError":False,"iDelayAfter":300,"iDelayBefore":200,"bSetForeground":True,"sCursorPosition":"Center","iCursorOffsetX":0,"iCursorOffsetY":0,"sKeyModifiers":[],"sSimulate":"simulate","bMoveSmoothly":False})
+			Delay(2000)
+		End If
+		
+		// Close current HBL tab
+		#icon("@res:i73e4oed-9dra-ourf-qfpg-6hk0u05t6m98.png")
+		Mouse.Action({"wnd":[{"cls":"Chrome_WidgetWin_1","title":"*","app":"chrome"},{"cls":"Chrome_RenderWidgetHostHWND","title":"Chrome Legacy Window"}],"html":[{"tag":"A","parentid":"navTab","aaname":"close","idx":1}]},"left","click",5000,{"bContinueOnError":False,"iDelayAfter":300,"iDelayBefore":200,"bSetForeground":True,"sCursorPosition":"Center","iCursorOffsetX":0,"iCursorOffsetY":0,"sKeyModifiers":[],"sSimulate":"simulate","bMoveSmoothly":False})
+	Next
+	
+	// Writes current MBL value plus entry status to excel
+	Excel.WriteCell(podExcelBookObj,"ALL","D"&podExcelRowLineNo,currMblEntryStatus,True)
+Next
+
+
+
+
